@@ -13,6 +13,7 @@ dotenv.config();
 // Function to copy assets
 const copyAssets = async () => {
   try {
+    // Copy fonts and images to 'public/assets'
     await fs.copy(
       path.resolve('./node_modules/govuk-frontend/dist/govuk/assets'),
       path.resolve('./public/assets')
@@ -44,10 +45,20 @@ const build = async () => {
       outdir: 'public/css',
       plugins: [
         sassPlugin({
-          resolveDir: path.resolve('src/styles', 'node_modules/govuk-frontend/dist/govuk')
+          resolveDir: path.resolve('src/styles'),
+          // Inject the relative assets path into SCSS
+          // Here we are overriding the $govuk-assets-path variable for the build process
+          precompile: (source) => `$govuk-assets-path: "./assets/" !default;\n${source}`
         })
       ],
-      loader: { '.scss': 'css' },
+      loader: {
+        '.scss': 'css',
+        '.woff': 'file',
+        '.woff2': 'file',
+        '.png': 'file',
+        '.jpg': 'file',
+        '.svg': 'file'
+      },
       minify: true, // Minify CSS
       sourcemap: true,
     };
