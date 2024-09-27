@@ -48,7 +48,15 @@ const build = async () => {
           resolveDir: path.resolve('src/styles'),
           // Inject the relative assets path into SCSS
           // Here we are overriding the $govuk-assets-path variable for the build process
-          precompile: (source) => `$govuk-assets-path: "./assets/" !default;\n${source}`
+          // precompile: (source) => `$govuk-assets-path: "./assets/" !default;\n${source}`
+          // using path transformation to replace $govuk-assets-path references
+          transform: (source) => {
+            return source
+              // Replace $govuk-assets-path references for fonts
+              .replace(/url\(["']?\/assets\/fonts\/([^"'\)]+)["']?\)/g, 'url("./assets/fonts/$1")')
+              // Replace $govuk-assets-path references for images
+              .replace(/url\(["']?\/assets\/images\/([^"'\)]+)["']?\)/g, 'url("./assets/images/$1")');
+          }
         })
       ],
       loader: {
